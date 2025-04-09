@@ -24,11 +24,11 @@ This ensures that your notes with images will work even when you're offline.
 
 ## Screenshots
 
-![Plugin Settings](https://raw.githubusercontent.com/xmasterdev/obsidian-save-images-offline/main/screenshots/settings.png)
+![Plugin Settings](https://raw.githubusercontent.com/nykkolin/obsidian-save-images-offline/main/screenshots/settings.png)
 
 *Plugin settings panel with various configuration options*
 
-![Offline Images](https://raw.githubusercontent.com/xmasterdev/obsidian-save-images-offline/main/screenshots/offline-images.png)
+![Offline Images](https://raw.githubusercontent.com/nykkolin/obsidian-save-images-offline/main/screenshots/offline-images.png)
 
 
 ## Settings
@@ -75,7 +75,7 @@ This ensures that your notes with images will work even when you're offline.
 
 <div align="center">
   <p>If you find this plugin useful, consider supporting me:</p>
-  <a href="https://www.buymeacoffee.com/xmasterdev" target="_blank">
+  <a href="https://www.buymeacoffee.com/nykkolin" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
   </a>
 </div>

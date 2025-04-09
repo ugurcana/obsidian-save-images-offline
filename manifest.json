@@ -5,7 +5,7 @@
   "minAppVersion": "0.15.0",
   "description": "Automatically downloads online images from notes and saves them locally for offline viewing.",
   "author": "Nykko Lin",
-  "authorUrl": "https://github.com/xmasterdev",
+  "authorUrl": "https://github.com/nykkolin",
   "isDesktopOnly": false,
   "license": "MIT"
 }

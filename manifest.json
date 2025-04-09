@@ -3,8 +3,9 @@
   "name": "Save Images Offline",
   "version": "1.0.0",
   "minAppVersion": "0.15.0",
-  "description": "Automatically downloads online images in notes and saves them locally for offline viewing.",
+  "description": "Automatically downloads online images from notes and saves them locally for offline viewing.",
   "author": "Nykko Lin",
   "authorUrl": "https://github.com/xmasterdev",
-  "isDesktopOnly": false
+  "isDesktopOnly": false,
+  "license": "MIT"
 }

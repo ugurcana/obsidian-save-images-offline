@@ -78,4 +78,8 @@ This ensures that your notes with images will work even when you're offline.
   <a href="https://www.buymeacoffee.com/xmasterdev" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
   </a>
+  <p>or</p>
+  <a href="https://ko-fi.com/nykkolin" target="_blank">
+    <img src="https://storage.ko-fi.com/cdn/kofi_button_blue.png" alt="Support me on Ko-fi" style="height: 36px !important;">
+  </a>
 </div>

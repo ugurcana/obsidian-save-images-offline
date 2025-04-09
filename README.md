@@ -80,6 +80,6 @@ This ensures that your notes with images will work even when you're offline.
   </a>
   <p>or</p>
   <a href="https://ko-fi.com/nykkolin" target="_blank">
-    <img src="https://storage.ko-fi.com/cdn/kofi_button_blue.png" alt="Support me on Ko-fi" style="height: 36px !important;">
+    <img src="https://img.shields.io/badge/Support%20me%20on-Ko--fi-blue?style=for-the-badge&logo=ko-fi" alt="Support me on Ko-fi">
   </a>
 </div>

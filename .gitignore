@@ -37,9 +37,8 @@ Thumbs.db
 # Obsidian files
 .obsidian/
 
-# TypeScript source files and compiled output
-*.ts
-!manifest.json
+# Compiled output only
+# We want to include TypeScript source files in the repo
 
 # Compiled output
 main.js

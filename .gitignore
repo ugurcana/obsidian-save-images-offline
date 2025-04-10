@@ -37,6 +37,10 @@ Thumbs.db
 # Obsidian files
 .obsidian/
 
-# TypeScript source files (we only want to commit the compiled JS)
+# TypeScript source files and compiled output
 *.ts
 !manifest.json
+
+# Compiled output
+main.js
+styles.css

@@ -21,6 +21,9 @@ jobs:
               run: |
                   npm install
                   npm run build --if-present
+            - name: List files
+              run: ls -la
+
             - name: Create Release
               # https://github.com/ncipollo/release-action
               uses: ncipollo/release-action@v1.7.3

@@ -40,7 +40,7 @@ This ensures that your notes with images will work even when you're offline.
 
 ### Image Storage Settings
 
-- **Image folder**: Subfolder name within note folder where images will be saved (leave empty to save directly in note folder)
+- **Image folder**: Folder path where images will be saved (subfolder name within note folder)
 - **Use MD5 for filenames**: Use MD5 hash of image content as filename (prevents duplicates)
 
 ### Image Processing Settings

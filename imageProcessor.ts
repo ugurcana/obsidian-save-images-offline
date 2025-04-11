@@ -68,9 +68,23 @@ export async function processContent(
     settings: SaveImagesOfflineSettings,
     stats: { total: number, downloaded: number, failed: number, skipped: number }
 ): Promise<string> {
+    // Determine the base folder for saving images
+    let basePath = '';
+    if (file) {
+        // Get the directory of the current file
+        basePath = file.path.substring(0, file.path.lastIndexOf('/') + 1);
+
+        // If imageFolder is specified, it's a subfolder within the note folder
+        if (settings.imageFolder) {
+            basePath += settings.imageFolder + '/';
+        }
+    } else {
+        // Fallback to the global image folder setting if no file is provided
+        basePath = settings.imageFolder;
+    }
+
     // Ensure the image folder exists
-    const imageFolder = settings.imageFolder;
-    await ensureFolderExists(vault, imageFolder);
+    await ensureFolderExists(vault, basePath);
 
     // Process markdown image syntax
     let newContent = await replaceAsync(content, IMAGE_URL_REGEX, async (match, altText, imageUrl) => {
@@ -89,7 +103,7 @@ export async function processContent(
         }
 
         log.debug(`Processing image URL: ${imageUrl}`);
-        const result = await downloadAndSaveImage(imageUrl, vault, settings);
+        const result = await downloadAndSaveImage(imageUrl, vault, settings, basePath);
 
         if (result.success) {
             stats.downloaded++;
@@ -119,7 +133,7 @@ export async function processContent(
         }
 
         log.debug(`Processing HTML image URL: ${imageUrl}`);
-        const result = await downloadAndSaveImage(imageUrl, vault, settings);
+        const result = await downloadAndSaveImage(imageUrl, vault, settings, basePath);
 
         if (result.success) {
             stats.downloaded++;
@@ -144,12 +158,14 @@ export async function processContent(
  * @param imageUrl The URL of the image to download
  * @param vault The Obsidian vault
  * @param settings Plugin settings
+ * @param basePath The base path where the image should be saved
  * @returns Object with success status, local path, and error if any
  */
 async function downloadAndSaveImage(
     imageUrl: string,
     vault: Vault,
-    settings: SaveImagesOfflineSettings
+    settings: SaveImagesOfflineSettings,
+    basePath: string
 ): Promise<{ success: boolean, localPath?: string, error?: Error }> {
     log.debug(`Starting download and save process for image URL: ${imageUrl}`);
     try {
@@ -297,7 +313,7 @@ async function downloadAndSaveImage(
         }
 
         // Full path in the vault
-        const localPath = `${settings.imageFolder}/${filename}`;
+        const localPath = `${basePath}/${filename}`;
 
         // Check if file already exists
         if (await vault.adapter.exists(localPath)) {

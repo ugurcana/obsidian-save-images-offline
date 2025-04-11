@@ -80,7 +80,7 @@ export class SaveImagesOfflineSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Image folder')
-            .setDesc('Folder path where images will be saved (relative to vault root)')
+            .setDesc('Subfolder name within note folder where images will be saved (leave empty to save directly in note folder)')
             .addText(text => text
                 .setPlaceholder('attachments')
                 .setValue(this.plugin.settings.imageFolder)

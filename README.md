@@ -17,7 +17,7 @@ When enabled, the plugin:
 
 1. Scans your notes for image URLs (both Markdown and HTML formats)
 2. Downloads the images from those URLs
-3. Saves them to your configured folder in the vault
+3. Saves them to a subfolder within the note's folder
 4. Updates the links in your notes to point to the local files
 
 This ensures that your notes with images will work even when you're offline.

@@ -76,7 +76,10 @@ export async function processContent(
 
         // If imageFolder is specified, it's a subfolder within the note folder
         if (settings.imageFolder) {
-            basePath += settings.imageFolder + '/';
+            // Ensure we don't add trailing slash if imageFolder already has one
+            const folderName = settings.imageFolder.endsWith('/') ?
+                settings.imageFolder : settings.imageFolder;
+            basePath += folderName;
         }
     } else {
         // Fallback to the global image folder setting if no file is provided
@@ -114,6 +117,9 @@ export async function processContent(
                 // Extract just the filename and subfolder if any
                 const notePath = file.path.substring(0, file.path.lastIndexOf('/') + 1);
                 imagePath = result.localPath.substring(notePath.length);
+
+                // Ensure there are no double slashes in the path
+                imagePath = imagePath.replace(/\/\//g, '/');
             }
             return `![${altText}](${imagePath})`;
         } else {
@@ -155,6 +161,9 @@ export async function processContent(
                 // Extract just the filename and subfolder if any
                 const notePath = file.path.substring(0, file.path.lastIndexOf('/') + 1);
                 imagePath = result.localPath.substring(notePath.length);
+
+                // Ensure there are no double slashes in the path
+                imagePath = imagePath.replace(/\/\//g, '/');
             }
             return `![${altText}](${imagePath})`;
         } else {
@@ -327,7 +336,10 @@ async function downloadAndSaveImage(
         }
 
         // Full path in the vault
-        const localPath = `${basePath}/${filename}`;
+        // Ensure we don't have double slashes in the path
+        const localPath = basePath.endsWith('/') ?
+            `${basePath}${filename}` :
+            `${basePath}/${filename}`;
 
         // Check if file already exists
         if (await vault.adapter.exists(localPath)) {

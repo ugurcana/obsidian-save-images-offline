@@ -24,19 +24,21 @@ jobs:
       - name: Build plugin
         run: npm run build
 
+      - name: List files
+        run: ls -la
+
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          if [ -f styles.css ]; then
-            gh release create "$tag" \
-              --title="$tag" \
-              --draft \
-              main.js manifest.json styles.css
-          else
-            gh release create "$tag" \
-              --title="$tag" \
-              --draft \
-              main.js manifest.json
+          # Check which files exist after build
+          files="manifest.json"
+          if [ -f main.js ]; then
+            files="$files main.js"
           fi
+          if [ -f styles.css ]; then
+            files="$files styles.css"
+          fi
+          # Create release with available files
+          gh release create "$tag" --title="$tag" --draft $files

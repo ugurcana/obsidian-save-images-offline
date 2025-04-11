@@ -24,21 +24,11 @@ jobs:
       - name: Build plugin
         run: npm run build
 
-      - name: List files
-        run: ls -la
-
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          # Check which files exist after build
-          files="manifest.json"
-          if [ -f main.js ]; then
-            files="$files main.js"
-          fi
-          if [ -f styles.css ]; then
-            files="$files styles.css"
-          fi
-          # Create release with available files
-          gh release create "$tag" --title="$tag" --draft $files
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "main.js,manifest.json,styles.css"
+          draft: true
+          generateReleaseNotes: true

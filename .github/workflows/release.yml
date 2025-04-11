@@ -1,34 +1,26 @@
-name: Release Obsidian Plugin
+name: Plugin release
 
 on:
-  push:
-    tags:
-      - '*'
+    push:
+        tags:
+            - "*"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build plugin
-        run: npm run build
-
-      - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "main.js,manifest.json,styles.css"
-          draft: true
-          generateReleaseNotes: true
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18.x'
+            - name: npm build
+              run: |
+                  npm install
+                  npm run build --if-present
+            - name: Create Release
+              # https://github.com/ncipollo/release-action
+              uses: ncipollo/release-action@v1.7.3
+              with:
+                  artifacts: "main.js,manifest.json,styles.css"
+                  token: ${{ secrets.GITHUB_TOKEN }}

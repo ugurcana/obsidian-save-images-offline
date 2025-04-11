@@ -2,6 +2,10 @@
 
 This plugin for [Obsidian](https://obsidian.md) automatically downloads online images in your notes and saves them locally for offline viewing. Never worry about broken image links or internet connectivity issues again!
 
+## Demo
+
+![Demo](https://raw.githubusercontent.com/nykkolin/obsidian-save-images-offline/main/screenshots/demo.gif)
+
 ## Features
 
 - **Automatic Image Download**: Automatically detects and downloads images from online URLs in your notes
@@ -27,8 +31,6 @@ This ensures that your notes with images will work even when you're offline.
 ![Plugin Settings](https://raw.githubusercontent.com/nykkolin/obsidian-save-images-offline/main/screenshots/settings.png)
 
 *Plugin settings panel with various configuration options*
-
-![Offline Images](https://raw.githubusercontent.com/nykkolin/obsidian-save-images-offline/main/screenshots/offline-images.png)
 
 
 ## Settings

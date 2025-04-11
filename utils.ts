@@ -1,6 +1,7 @@
 import { Notice, TFile, Vault } from 'obsidian';
 import * as path from 'path';
 import { createHash } from 'crypto';
+import { log } from './logger';
 
 // Regular expressions for finding image URLs in markdown
 // Modified to support complex URLs like CDN/proxy URLs with image type in query parameters
@@ -10,7 +11,7 @@ export const HTML_IMG_REGEX = /<img.*?src=["'](https?:\/\/[^\s"']+)["'].*?>/g;
 // Helper function to check if a URL is likely an image URL
 export function isLikelyImageUrl(url: string): boolean {
     // Log URL for debugging
-    console.log(`Checking if URL is likely an image: ${url}`);
+    log.debug(`Checking if URL is likely an image: ${url}`);
 
     // Check for common image extensions in the URL or query parameters
     const imageExtPattern = /\.(png|jpg|jpeg|gif|webp|svg|awebp|bmp|tiff|avif)(\?|$|&|#)/i;
@@ -65,7 +66,7 @@ export function isLikelyImageUrl(url: string): boolean {
            // Check for URLs with date patterns (common in news/blog image URLs)
            (datePathPattern.test(url) && /\.(\w{3,4})$/.test(url));
 
-    console.log(`URL ${url} is ${result ? 'likely' : 'not likely'} an image`);
+    log.debug(`URL ${url} is ${result ? 'likely' : 'not likely'} an image`);
     return result;
 }
 
@@ -83,14 +84,14 @@ export async function downloadImage(
 ): Promise<ArrayBuffer | null> {
     let attempts = 0;
 
-    console.log(`Attempting to download image from URL: ${url}`);
+    log.debug(`Attempting to download image from URL: ${url}`);
 
     while (attempts < retries) {
         try {
-            console.log(`Download attempt ${attempts + 1} for URL: ${url}`);
+            log.debug(`Download attempt ${attempts + 1} for URL: ${url}`);
             const controller = new AbortController();
             const timeoutId = setTimeout(() => {
-                console.log(`Download timeout for URL: ${url}`);
+                log.warn(`Download timeout for URL: ${url}`);
                 controller.abort();
             }, timeout);
 
@@ -109,13 +110,13 @@ export async function downloadImage(
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            console.log(`Successfully downloaded image from URL: ${url}`);
+            log.info(`Successfully downloaded image from URL: ${url}`);
             return await response.arrayBuffer();
         } catch (error) {
             attempts++;
-            console.log(`Attempt ${attempts} failed for URL: ${url}. Error: ${error.message}`);
+            log.warn(`Attempt ${attempts} failed for URL: ${url}. Error: ${error.message}`);
             if (attempts >= retries) {
-                console.error(`Failed to download image from ${url} after ${retries} attempts:`, error);
+                log.error(`Failed to download image from ${url} after ${retries} attempts: ${error.message}`);
                 return null;
             }
             // Wait before retrying
@@ -234,7 +235,7 @@ export function sanitizeFilename(filename: string): string {
  * @returns The file extension (without the dot)
  */
 export function getFileExtension(url: string): string {
-    console.log(`Getting file extension for URL: ${url}`);
+    log.debug(`Getting file extension for URL: ${url}`);
 
     // Try to extract extension from the URL path
     let extension = '';
@@ -246,7 +247,7 @@ export function getFileExtension(url: string): string {
         const extMatch = lastSegment.match(/\.([a-zA-Z0-9]+)$/i);
         if (extMatch) {
             extension = extMatch[1].toLowerCase();
-            console.log(`Extracted extension ${extension} from path: ${lastSegment}`);
+            log.debug(`Extracted extension ${extension} from path: ${lastSegment}`);
         }
     }
 
@@ -256,7 +257,7 @@ export function getFileExtension(url: string): string {
         const typeMatch = url.match(/[?&]type=([a-zA-Z0-9]+)/i);
         if (typeMatch) {
             extension = typeMatch[1].toLowerCase();
-            console.log(`Extracted extension ${extension} from type parameter`);
+            log.debug(`Extracted extension ${extension} from type parameter`);
         }
 
         // Check for format parameter
@@ -264,7 +265,7 @@ export function getFileExtension(url: string): string {
             const formatMatch = url.match(/[?&]format=([a-zA-Z0-9]+)/i);
             if (formatMatch) {
                 extension = formatMatch[1].toLowerCase();
-                console.log(`Extracted extension ${extension} from format parameter`);
+                log.debug(`Extracted extension ${extension} from format parameter`);
             }
         }
     }
@@ -274,7 +275,7 @@ export function getFileExtension(url: string): string {
         const fullUrlMatch = url.match(/\.([a-zA-Z0-9]+)(?:[\?#].*)?$/i);
         if (fullUrlMatch) {
             extension = fullUrlMatch[1].toLowerCase();
-            console.log(`Extracted extension ${extension} from full URL`);
+            log.debug(`Extracted extension ${extension} from full URL`);
         }
     }
 
@@ -299,17 +300,17 @@ export function getFileExtension(url: string): string {
                             decodedUrl = decodeURIComponent(decodedUrl);
                         } catch (e) {
                             // If decoding fails, use the original string
-                            console.log(`Failed to decode URL: ${decodedUrl}, using as is`);
+                            log.warn(`Failed to decode URL: ${decodedUrl}, using as is`);
                         }
                     }
 
-                    console.log(`Found nested URL: ${decodedUrl}`);
+                    log.debug(`Found nested URL: ${decodedUrl}`);
 
                     // Try to extract extension from the decoded URL
                     const nestedExtMatch = decodedUrl.match(/\.([a-zA-Z0-9]+)(?:[\?#].*)?$/i);
                     if (nestedExtMatch) {
                         extension = nestedExtMatch[1].toLowerCase();
-                        console.log(`Extracted extension ${extension} from nested URL`);
+                        log.debug(`Extracted extension ${extension} from nested URL`);
                         break; // Exit the loop once we find an extension
                     }
 
@@ -318,7 +319,7 @@ export function getFileExtension(url: string): string {
                         const nestedQueryMatch = decodedUrl.match(/[?&](type|format)=([a-zA-Z0-9]+)/i);
                         if (nestedQueryMatch) {
                             extension = nestedQueryMatch[2].toLowerCase();
-                            console.log(`Extracted extension ${extension} from nested URL query parameter`);
+                            log.debug(`Extracted extension ${extension} from nested URL query parameter`);
                             break;
                         }
                     }
@@ -334,7 +335,7 @@ export function getFileExtension(url: string): string {
         const formatMatch = /[?&;](cf|fmt|format|type)=(webp|png|jpg|jpeg|gif|avif)/i.exec(url);
         if (formatMatch && formatMatch[2]) {
             extension = formatMatch[2].toLowerCase();
-            console.log(`Detected format parameter ${formatMatch[1]}=${formatMatch[2]}, using ${extension} extension`);
+            log.debug(`Detected format parameter ${formatMatch[1]}=${formatMatch[2]}, using ${extension} extension`);
         }
     }
 
@@ -344,22 +345,22 @@ export function getFileExtension(url: string): string {
         const complexUrlMatch = url.match(/\/(\w+\.(png|jpg|jpeg|gif|webp|svg|awebp|bmp|tiff|avif))[\/\?#&]/i);
         if (complexUrlMatch && complexUrlMatch[2]) {
             extension = complexUrlMatch[2].toLowerCase();
-            console.log(`Extracted extension ${extension} from complex URL path component`);
+            log.debug(`Extracted extension ${extension} from complex URL path component`);
         }
     }
 
     // If no extension could be determined, use a default
     if (!extension) {
-        console.log(`No extension found in URL: ${url}, defaulting to jpg`);
+        log.debug(`No extension found in URL: ${url}, defaulting to jpg`);
         extension = 'jpg';
     }
 
     // Handle special cases for certain extensions
     if (extension === 'awebp') {
-        console.log(`Converting awebp extension to jpg for better compatibility`);
+        log.debug(`Converting awebp extension to jpg for better compatibility`);
         extension = 'jpg';
     } else if (extension === 'webp') {
-        console.log(`Converting webp extension to jpg for better compatibility`);
+        log.debug(`Converting webp extension to jpg for better compatibility`);
         extension = 'jpg';
     }
 

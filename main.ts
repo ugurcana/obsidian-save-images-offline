@@ -4,8 +4,7 @@ import {
     MarkdownView,
     Editor,
     Notice,
-    TAbstractFile,
-    MarkdownFileInfo
+    TAbstractFile
 } from 'obsidian';
 import {
     SaveImagesOfflineSettings,
@@ -22,6 +21,7 @@ import {
     HTML_IMG_REGEX,
     isLikelyImageUrl
 } from './utils';
+import { log } from './logger';
 
 export default class SaveImagesOfflinePlugin extends Plugin {
     settings: SaveImagesOfflineSettings;
@@ -99,15 +99,16 @@ export default class SaveImagesOfflinePlugin extends Plugin {
         const statusBarItem = this.addStatusBarItem();
         statusBarItem.setText('Save Images Offline');
 
-        console.log('Save Images Offline plugin loaded');
+        log.info('Plugin loaded');
     }
 
     onunload() {
-        console.log('Save Images Offline plugin unloaded');
+        log.info('Plugin unloaded');
     }
 
     async loadSettings() {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        log.setLogLevel(this.settings.logLevel);
     }
 
     async saveSettings() {
@@ -206,7 +207,7 @@ export default class SaveImagesOfflinePlugin extends Plugin {
                 failed: stats.failed
             };
         } catch (error) {
-            console.error(`Error processing file ${file.path}:`, error);
+            log.error(`Error processing file ${file.path}: ${error.message}`);
 
             if (showNotification) {
                 showNotice(`Error processing file: ${error.message}`);

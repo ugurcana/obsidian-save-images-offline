@@ -1,38 +1,41 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import SaveImagesOfflinePlugin from './main';
+import { LogLevel } from './logger';
 
 export interface SaveImagesOfflineSettings {
     // General settings
     autoDownloadImages: boolean;
     downloadOnPaste: boolean;
-    
+
     // Image storage settings
     imageFolder: string;
     useMD5ForFilenames: boolean;
-    
+
     // Image processing settings
     convertPngToJpeg: boolean;
     jpegQuality: number;
-    
+
     // Advanced settings
     maxDownloadRetries: number;
     downloadTimeout: number;
     ignoredDomains: string;
+    logLevel: LogLevel;
 }
 
 export const DEFAULT_SETTINGS: SaveImagesOfflineSettings = {
     autoDownloadImages: true,
     downloadOnPaste: true,
-    
+
     imageFolder: 'attachments',
     useMD5ForFilenames: true,
-    
+
     convertPngToJpeg: false,
     jpegQuality: 85,
-    
+
     maxDownloadRetries: 3,
     downloadTimeout: 30000,
-    ignoredDomains: ''
+    ignoredDomains: '',
+    logLevel: LogLevel.ERROR
 };
 
 export class SaveImagesOfflineSettingTab extends PluginSettingTab {
@@ -159,5 +162,59 @@ export class SaveImagesOfflineSettingTab extends PluginSettingTab {
                     this.plugin.settings.ignoredDomains = value;
                     await this.plugin.saveSettings();
                 }));
+
+        // Sponsor section
+        containerEl.createEl('hr');
+
+        const sponsorDiv = containerEl.createDiv('sponsor-container');
+        sponsorDiv.addClass('sponsor-container');
+        sponsorDiv.style.display = 'flex';
+        sponsorDiv.style.flexDirection = 'column';
+        sponsorDiv.style.alignItems = 'center';
+        sponsorDiv.style.marginTop = '1rem';
+
+        const sponsorText = sponsorDiv.createDiv();
+        sponsorText.setText('If you like this Plugin, consider donating to support continued development.');
+        sponsorText.style.marginBottom = '1rem';
+        sponsorText.style.textAlign = 'center';
+
+        const buttonsDiv = sponsorDiv.createDiv();
+        buttonsDiv.style.display = 'flex';
+        buttonsDiv.style.gap = '1rem';
+        buttonsDiv.style.justifyContent = 'center';
+        buttonsDiv.style.flexWrap = 'wrap';
+        buttonsDiv.style.alignItems = 'center';
+
+        // Ko-fi button
+        const kofiLink = buttonsDiv.createEl('a', {
+            href: 'https://ko-fi.com/nykkolin'
+        });
+        kofiLink.setAttribute('target', '_blank');
+        kofiLink.setAttribute('rel', 'noopener');
+
+        // Create an image element for Ko-fi
+        const kofiImg = kofiLink.createEl('img');
+        kofiImg.src = 'https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white';
+        kofiImg.alt = 'Support me on Ko-fi';
+        kofiImg.style.height = '38px';
+        kofiImg.style.width = 'auto';
+        kofiImg.style.maxWidth = '160px';
+
+        // Buy Me a Coffee button
+        const bmcLink = buttonsDiv.createEl('a', {
+            href: 'https://www.buymeacoffee.com/nykkolin'
+        });
+        bmcLink.setAttribute('target', '_blank');
+        bmcLink.setAttribute('rel', 'noopener');
+
+        // Create an image element for Buy Me a Coffee
+        const bmcImg = bmcLink.createEl('img');
+        bmcImg.src = 'https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png';
+        bmcImg.alt = 'Buy Me A Coffee';
+        bmcImg.style.height = '38px';
+        bmcImg.style.width = 'auto';
+        bmcImg.style.maxWidth = '160px';
+
+
     }
 }

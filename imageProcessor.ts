@@ -13,6 +13,7 @@ import {
     isLikelyImageUrl
 } from './utils';
 import { SaveImagesOfflineSettings } from './settings';
+import { log } from './logger';
 
 /**
  * Processes a markdown file to find and download images
@@ -75,7 +76,7 @@ export async function processContent(
     let newContent = await replaceAsync(content, IMAGE_URL_REGEX, async (match, altText, imageUrl) => {
         // Check if this URL is likely an image URL
         if (!isLikelyImageUrl(imageUrl)) {
-            console.log(`Skipping URL that doesn't appear to be an image: ${imageUrl}`);
+            log.debug(`Skipping URL that doesn't appear to be an image: ${imageUrl}`);
             return match; // Skip URLs that don't appear to be images
         }
 
@@ -87,7 +88,7 @@ export async function processContent(
             return match;
         }
 
-        console.log(`Processing image URL: ${imageUrl}`);
+        log.debug(`Processing image URL: ${imageUrl}`);
         const result = await downloadAndSaveImage(imageUrl, vault, settings);
 
         if (result.success) {
@@ -105,7 +106,7 @@ export async function processContent(
     newContent = await replaceAsync(newContent, HTML_IMG_REGEX, async (match, imageUrl) => {
         // Check if this URL is likely an image URL
         if (!isLikelyImageUrl(imageUrl)) {
-            console.log(`Skipping HTML URL that doesn't appear to be an image: ${imageUrl}`);
+            log.debug(`Skipping HTML URL that doesn't appear to be an image: ${imageUrl}`);
             return match; // Skip URLs that don't appear to be images
         }
 
@@ -117,7 +118,7 @@ export async function processContent(
             return match;
         }
 
-        console.log(`Processing HTML image URL: ${imageUrl}`);
+        log.debug(`Processing HTML image URL: ${imageUrl}`);
         const result = await downloadAndSaveImage(imageUrl, vault, settings);
 
         if (result.success) {
@@ -150,7 +151,7 @@ async function downloadAndSaveImage(
     vault: Vault,
     settings: SaveImagesOfflineSettings
 ): Promise<{ success: boolean, localPath?: string, error?: Error }> {
-    console.log(`Starting download and save process for image URL: ${imageUrl}`);
+    log.debug(`Starting download and save process for image URL: ${imageUrl}`);
     try {
         // Download the image
         const imageData = await downloadImage(
@@ -177,30 +178,30 @@ async function downloadAndSaveImage(
         // Check for common image signatures
         if (header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4E && header[3] === 0x47) {
             detectedExtension = 'png';
-            console.log(`Detected PNG signature in binary data`);
+            log.debug(`Detected PNG signature in binary data`);
         } else if (header[0] === 0xFF && header[1] === 0xD8) {
             detectedExtension = 'jpg';
-            console.log(`Detected JPEG signature in binary data`);
+            log.debug(`Detected JPEG signature in binary data`);
         } else if (header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46) {
             detectedExtension = 'gif';
-            console.log(`Detected GIF signature in binary data`);
+            log.debug(`Detected GIF signature in binary data`);
         } else if (header[0] === 0x52 && header[1] === 0x49 && header[2] === 0x46 && header[3] === 0x46) {
             // WEBP files start with RIFF and have WEBP at offset 8
             if (header[8] === 0x57 && header[9] === 0x45 && header[10] === 0x42 && header[11] === 0x50) {
                 detectedExtension = 'jpg'; // Convert webp to jpg for better compatibility
-                console.log(`Detected WEBP signature in binary data, using jpg for compatibility`);
+                log.debug(`Detected WEBP signature in binary data, using jpg for compatibility`);
             } else {
                 detectedExtension = 'jpg'; // Default for RIFF but not WEBP
-                console.log(`Detected RIFF signature but not WEBP in binary data, using jpg`);
+                log.debug(`Detected RIFF signature but not WEBP in binary data, using jpg`);
             }
         } else if (header[0] === 0x42 && header[1] === 0x4D) {
             detectedExtension = 'bmp';
-            console.log(`Detected BMP signature in binary data`);
+            log.debug(`Detected BMP signature in binary data`);
         }
 
         // If we detected a different extension than what we parsed from the URL
         if (detectedExtension && detectedExtension !== fileExtension) {
-            console.log(`Extension mismatch: URL suggests ${fileExtension} but binary data indicates ${detectedExtension}`);
+            log.debug(`Extension mismatch: URL suggests ${fileExtension} but binary data indicates ${detectedExtension}`);
             // Use the detected extension as it's more reliable
             fileExtension = detectedExtension;
         }
@@ -209,12 +210,12 @@ async function downloadAndSaveImage(
         if (!fileExtension) {
             // Default to jpg if we can't detect the type
             fileExtension = 'jpg';
-            console.log(`Could not detect file type for ${imageUrl}, defaulting to jpg`);
+            log.debug(`Could not detect file type for ${imageUrl}, defaulting to jpg`);
         }
 
         // Special handling for awebp extension
         if (fileExtension === 'awebp') {
-            console.log(`Converting awebp extension to jpg for better compatibility`);
+            log.debug(`Converting awebp extension to jpg for better compatibility`);
             fileExtension = 'jpg';
         }
 
@@ -292,7 +293,7 @@ async function downloadAndSaveImage(
         // Final check to ensure filename has an extension
         if (!filename.includes('.')) {
             filename = `${filename}.${fileExtension}`;
-            console.log(`Added missing extension to filename: ${filename}`);
+            log.debug(`Added missing extension to filename: ${filename}`);
         }
 
         // Full path in the vault

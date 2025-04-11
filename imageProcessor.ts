@@ -105,10 +105,17 @@ export async function processContent(
         log.debug(`Processing image URL: ${imageUrl}`);
         const result = await downloadAndSaveImage(imageUrl, vault, settings, basePath);
 
-        if (result.success) {
+        if (result.success && result.localPath) {
             stats.downloaded++;
             // Create the new markdown with the local image path
-            return `![${altText}](${result.localPath})`;
+            // If the image is saved in the note's folder, use a relative path
+            let imagePath = result.localPath;
+            if (file && result.localPath.startsWith(file.path.substring(0, file.path.lastIndexOf('/') + 1))) {
+                // Extract just the filename and subfolder if any
+                const notePath = file.path.substring(0, file.path.lastIndexOf('/') + 1);
+                imagePath = result.localPath.substring(notePath.length);
+            }
+            return `![${altText}](${imagePath})`;
         } else {
             stats.failed++;
             console.error(`Failed to download image: ${imageUrl}`, result.error);
@@ -135,14 +142,21 @@ export async function processContent(
         log.debug(`Processing HTML image URL: ${imageUrl}`);
         const result = await downloadAndSaveImage(imageUrl, vault, settings, basePath);
 
-        if (result.success) {
+        if (result.success && result.localPath) {
             stats.downloaded++;
             // Extract any attributes from the original tag
             const altMatch = match.match(/alt=["']([^"']*)["']/);
             const altText = altMatch ? altMatch[1] : '';
 
             // Create the new markdown with the local image path
-            return `![${altText}](${result.localPath})`;
+            // If the image is saved in the note's folder, use a relative path
+            let imagePath = result.localPath;
+            if (file && result.localPath.startsWith(file.path.substring(0, file.path.lastIndexOf('/') + 1))) {
+                // Extract just the filename and subfolder if any
+                const notePath = file.path.substring(0, file.path.lastIndexOf('/') + 1);
+                imagePath = result.localPath.substring(notePath.length);
+            }
+            return `![${altText}](${imagePath})`;
         } else {
             stats.failed++;
             console.error(`Failed to download image: ${imageUrl}`, result.error);

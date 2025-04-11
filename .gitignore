@@ -42,4 +42,4 @@ Thumbs.db
 
 # Compiled output
 main.js
-styles.css
+# styles.css - We want to include this in the repo

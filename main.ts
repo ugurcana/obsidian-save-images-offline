@@ -28,6 +28,7 @@ export default class SaveImagesOfflinePlugin extends Plugin {
     // Store event references to properly detach them when needed
     private fileModifyHandler: (file: TAbstractFile) => void;
     private fileCreateHandler: (file: TAbstractFile) => void;
+    private pasteHandler: (evt: ClipboardEvent, editor: Editor, view: MarkdownView) => Promise<void>;
 
     async onload() {
         await this.loadSettings();
@@ -72,6 +73,9 @@ export default class SaveImagesOfflinePlugin extends Plugin {
                 this.processFile(file, false);
             }
         };
+
+        // Initialize paste handler
+        this.pasteHandler = this.handlePaste.bind(this);
 
         // Setup features based on current settings
         this.updateAutoDownloadFeature();
@@ -123,13 +127,13 @@ export default class SaveImagesOfflinePlugin extends Plugin {
      */
     updatePasteFeature() {
         // Remove existing paste handler
-        this.app.workspace.off('editor-paste', this.handlePaste);
+        this.app.workspace.off('editor-paste', this.pasteHandler);
 
         // Only register paste event if download-on-paste is enabled
         if (this.settings.downloadOnPaste) {
             log.info('Enabling download-on-paste feature');
             this.registerEvent(
-                this.app.workspace.on('editor-paste', this.handlePaste.bind(this))
+                this.app.workspace.on('editor-paste', this.pasteHandler)
             );
         } else {
             log.info('Disabling download-on-paste feature');

@@ -45,3 +45,4 @@ main.js
 # styles.css - We want to include this in the repo
 # SpecStory directory
 .specstory/
+build/

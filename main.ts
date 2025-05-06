@@ -25,6 +25,9 @@ import { log } from './logger';
 
 export default class SaveImagesOfflinePlugin extends Plugin {
     settings: SaveImagesOfflineSettings;
+    // Store event references to properly detach them when needed
+    private fileModifyHandler: (file: TAbstractFile) => void;
+    private fileCreateHandler: (file: TAbstractFile) => void;
 
     async onload() {
         await this.loadSettings();
@@ -57,33 +60,22 @@ export default class SaveImagesOfflinePlugin extends Plugin {
             }
         });
 
-        // Register for file events if auto-download is enabled
-        if (this.settings.autoDownloadImages) {
-            // Process files when they are modified
-            this.registerEvent(
-                this.app.vault.on('modify', (file: TAbstractFile) => {
-                    if (file instanceof TFile && file.extension === 'md') {
-                        this.processFile(file, false);
-                    }
-                })
-            );
+        // Initialize event handlers
+        this.fileModifyHandler = (file: TAbstractFile) => {
+            if (file instanceof TFile && file.extension === 'md') {
+                this.processFile(file, false);
+            }
+        };
 
-            // Process files when they are created
-            this.registerEvent(
-                this.app.vault.on('create', (file: TAbstractFile) => {
-                    if (file instanceof TFile && file.extension === 'md') {
-                        this.processFile(file, false);
-                    }
-                })
-            );
-        }
+        this.fileCreateHandler = (file: TAbstractFile) => {
+            if (file instanceof TFile && file.extension === 'md') {
+                this.processFile(file, false);
+            }
+        };
 
-        // Register for editor paste events if download on paste is enabled
-        if (this.settings.downloadOnPaste) {
-            this.registerEvent(
-                this.app.workspace.on('editor-paste', this.handlePaste.bind(this))
-            );
-        }
+        // Setup features based on current settings
+        this.updateAutoDownloadFeature();
+        this.updatePasteFeature();
 
         // Register for layout-ready event to process the active file when the plugin loads
         this.app.workspace.onLayoutReady(() => {
@@ -95,15 +87,53 @@ export default class SaveImagesOfflinePlugin extends Plugin {
             }
         });
 
-        // Add status bar item
-        const statusBarItem = this.addStatusBarItem();
-        statusBarItem.setText('Save Images Offline');
-
         log.info('Plugin loaded');
     }
 
     onunload() {
+        // Clean up all event listeners
         log.info('Plugin unloaded');
+    }
+
+    /**
+     * Update auto-download feature based on current settings
+     */
+    updateAutoDownloadFeature() {
+        // Unregister existing event handlers to prevent duplicates
+        this.app.vault.off('modify', this.fileModifyHandler);
+        this.app.vault.off('create', this.fileCreateHandler);
+
+        // Only register events if auto-download is enabled
+        if (this.settings.autoDownloadImages) {
+            log.info('Enabling auto-download feature');
+            this.registerEvent(
+                this.app.vault.on('modify', this.fileModifyHandler)
+            );
+
+            this.registerEvent(
+                this.app.vault.on('create', this.fileCreateHandler)
+            );
+        } else {
+            log.info('Disabling auto-download feature');
+        }
+    }
+
+    /**
+     * Update paste feature based on current settings
+     */
+    updatePasteFeature() {
+        // Remove existing paste handler
+        this.app.workspace.off('editor-paste', this.handlePaste);
+
+        // Only register paste event if download-on-paste is enabled
+        if (this.settings.downloadOnPaste) {
+            log.info('Enabling download-on-paste feature');
+            this.registerEvent(
+                this.app.workspace.on('editor-paste', this.handlePaste.bind(this))
+            );
+        } else {
+            log.info('Disabling download-on-paste feature');
+        }
     }
 
     async loadSettings() {

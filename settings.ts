@@ -63,6 +63,7 @@ export class SaveImagesOfflineSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.autoDownloadImages = value;
                     await this.plugin.saveSettings();
+                    this.plugin.updateAutoDownloadFeature();
                 }));
 
         new Setting(containerEl)
@@ -73,6 +74,7 @@ export class SaveImagesOfflineSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.downloadOnPaste = value;
                     await this.plugin.saveSettings();
+                    this.plugin.updatePasteFeature();
                 }));
 
         // Image Storage Settings

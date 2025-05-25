@@ -155,16 +155,8 @@ export async function processContent(
             const altText = altMatch ? altMatch[1] : '';
 
             // Create the new markdown with the local image path
-            // If the image is saved in the note's folder, use a relative path
-            let imagePath = result.localPath;
-            if (file && result.localPath.startsWith(file.path.substring(0, file.path.lastIndexOf('/') + 1))) {
-                // Extract just the filename and subfolder if any
-                const notePath = file.path.substring(0, file.path.lastIndexOf('/') + 1);
-                imagePath = result.localPath.substring(notePath.length);
-
-                // Ensure there are no double slashes in the path
-                imagePath = imagePath.replace(/\/\//g, '/');
-            }
+            let imagePath = result.localPath.split('/').pop();
+            
             return `![${altText}](${imagePath})`;
         } else {
             stats.failed++;
